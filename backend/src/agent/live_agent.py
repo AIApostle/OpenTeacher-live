@@ -5,7 +5,7 @@ from google import genai
 from google.genai import types
 import pyaudio
 from tasks import share_screen, send_live_video,send_realtime_audio,listen_to_audio,receive_audio_from_ai,play_ai_audio
-
+from tools import WHITEBOARD_TOOL_MAP, tools
 
 load_dotenv()
 
@@ -14,18 +14,19 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise RuntimeError("Missing API KEY")
 
-client = genai.Client(api_key=api_key)
+client = genai.Client(api_key=api_key,http_options={"api_version": "v1alpha"})
 
 #system_prompt  = open("prompt.md", "r") 
 #print(system_prompt)
 
 MODEL = "gemini-2.5-flash-native-audio-preview-12-2025"
-CONFIG = {
-    "response_modalities": ["AUDIO"],
-    "system_instruction": "You are a helpful and friendly AI assistant.",
-    "speech_config": {
-        "voice_config": {"prebuilt_voice_config": {"voice_name": "Kore"}}}
-}
+CONFIG =types.LiveConnectConfig(
+    response_modalities = ["AUDIO"],
+    system_instruction = "You are a helpful and friendly AI assistant.",
+    speech_config = {
+        "voice_config": {"prebuilt_voice_config": {"voice_name": "Kore"}}},
+    tools = [tools]
+)
 
 pya = pyaudio.PyAudio()
 
@@ -33,6 +34,10 @@ pya = pyaudio.PyAudio()
 audio_queue_output = asyncio.Queue()
 audio_queue_mic = asyncio.Queue(maxsize=5)
 audio_stream = None
+
+
+async def tools_handler():
+    pass
 
 async def agent():
     """Main function to run the agent"""
