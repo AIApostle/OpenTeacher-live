@@ -17,13 +17,14 @@ if not api_key:
 
 client = genai.Client(api_key=api_key,http_options={"api_version": "v1alpha"})
 
-#system_prompt  = open("prompt.md", "r") 
-#print(system_prompt)
+# this is for the system instruction
+with open("prompt.md",'r', encoding='utf-8') as f:
+    system_message = f.read()
 
 MODEL = "gemini-2.5-flash-native-audio-preview-12-2025"
 CONFIG =types.LiveConnectConfig(
     response_modalities = ["AUDIO"],
-    system_instruction = "You are a helpful and friendly AI assistant.",
+    system_instruction = system_message, 
     speech_config = {
         "voice_config": {"prebuilt_voice_config": {"voice_name": "Kore"}}},
     tools = [tools,{'google_search': {}}]
@@ -52,7 +53,7 @@ async def agent():
                 tg.create_task(send_live_video(live_session))
                 tg.create_task(send_realtime_audio(live_session))
                 tg.create_task(receive_response_from_ai(live_session))
-                
+
                 tg.create_task(play_ai_audio())
                 tg.create_task(share_screen(live_session))
                 
