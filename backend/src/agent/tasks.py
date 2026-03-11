@@ -6,6 +6,7 @@ from google.genai import types
 from google import genai
 import pyaudio
 import io
+from tools  import tools_handler
 
 # --- pyaudio config ---
 FORMAT = pyaudio.paInt16
@@ -23,7 +24,7 @@ audio_stream = None
 
 
 
-
+# this function uses my microphone to listen to audio which will be sent to gemini
 async def listen_to_audio():
     """Listens for audio and puts it into the mic audio queue."""
     global audio_stream
@@ -42,14 +43,17 @@ async def listen_to_audio():
         data = await asyncio.to_thread(audio_stream.read, CHUNK_SIZE, **kwargs)
         await audio_queue_mic.put({"data": data, "mime_type": "audio/pcm"})
 
+# this function send my audio to gemini
 async def send_realtime_audio(session):
     """Sends audio from the mic audio queue to the GenAI session."""
     while True:
         msg = await audio_queue_mic.get()
         await session.send_realtime_input(audio=msg)
 
-async def receive_audio_from_ai(session):
-    """Receives responses from GenAI and puts audio data into the speaker audio queue."""
+        
+# this functions get the voice and the tool response from AI
+async def receive_response_from_ai(session):
+    """Receives responses including too call from GenAI and puts audio data into the speaker audio queue."""
     while True:
         turn = session.receive()
         async for response in turn:
@@ -58,10 +62,18 @@ async def receive_audio_from_ai(session):
                     if part.inline_data and isinstance(part.inline_data.data, bytes):
                         audio_queue_output.put_nowait(part.inline_data.data)
 
+            # A. HANDLE TOOLS (Whiteboard/Agentic Actions)
+            if response.tool_call:
+                # We call your tools_handler here
+                await tools_handler(session, response.tool_call)
+
+            
+
         # Empty the queue on interruption to stop playback
         while not audio_queue_output.empty():
             audio_queue_output.get_nowait()
 
+# this function plays the audio from gemini 
 async def play_ai_audio():
     """Plays audio from the speaker audio queue."""
     stream = await asyncio.to_thread(
@@ -75,6 +87,8 @@ async def play_ai_audio():
         bytestream = await audio_queue_output.get()
         await asyncio.to_thread(stream.write, bytestream)
 
+# this function uses my camera and sends my video to gemini
+
 async def send_live_video(session):
     # Initialize the camera (0 is usually the default webcam)
     cap = cv2.VideoCapture(0)
@@ -86,7 +100,7 @@ async def send_live_video(session):
                 break
 
             # 1. Resize or process frame (Optional: 768x768 is ideal)
-            # frame = cv2.resize(frame, (768, 768))
+            frame = cv2.resize(frame, (768, 768))
 
             # 2. Encode the frame as a JPEG
             success, buffer = cv2.imencode('.jpg', frame)
@@ -104,6 +118,8 @@ async def send_live_video(session):
             
     finally:
         cap.release()
+
+# this function shares my screen
 
 async def share_screen(session):
     with mss.mss() as sct:
