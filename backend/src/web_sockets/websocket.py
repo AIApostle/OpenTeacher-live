@@ -1,6 +1,8 @@
 from fastapi import FastAPI,websockets,APIRouter
 
 
+router = APIRouter()
+
 
 
 

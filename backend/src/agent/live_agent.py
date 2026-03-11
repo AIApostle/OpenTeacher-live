@@ -21,7 +21,9 @@ client = genai.Client(api_key=api_key,http_options={"api_version": "v1alpha"})
 with open("prompt.md",'r', encoding='utf-8') as f:
     system_message = f.read()
 
+# defines the gemini model we are using
 MODEL = "gemini-2.5-flash-native-audio-preview-12-2025"
+
 CONFIG =types.LiveConnectConfig(
     response_modalities = ["AUDIO"],
     system_instruction = system_message, 
