@@ -22,6 +22,11 @@ async def delete_item(item: str, x: int, y: int):
     print("deleted the item")
     return "i have deleted the last item"
 
+async def research_topic():
+    pass
+async def curate_topic():
+    pass
+
 
 # mapping to function declaration
 

@@ -6,7 +6,7 @@ from google.genai import types
 from google import genai
 import pyaudio
 import io
-from tools  import tools_handler
+from .tools  import tools_handler
 
 # --- pyaudio config ---
 FORMAT = pyaudio.paInt16

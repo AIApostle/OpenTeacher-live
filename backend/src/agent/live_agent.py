@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 import pyaudio
-from tasks import share_screen, send_live_video,send_realtime_audio,listen_to_audio,receive_response_from_ai,play_ai_audio
-from tools import WHITEBOARD_TOOL_MAP, tools
-from tools import draw_on_board,write_on_board,delete_item,clear_board
+from .tasks import share_screen, send_live_video,send_realtime_audio,listen_to_audio,receive_response_from_ai,play_ai_audio
+from .tools import WHITEBOARD_TOOL_MAP, tools
+from .tools import draw_on_board,write_on_board,delete_item,clear_board
 
 load_dotenv()
 
@@ -16,10 +16,20 @@ if not api_key:
     raise RuntimeError("Missing API KEY")
 
 client = genai.Client(api_key=api_key,http_options={"api_version": "v1alpha"})
+import os
 
 # this is for the system instruction
-with open("prompt.md",'r', encoding='utf-8') as f:
+#Gets the directory where live_agent.py is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 2Join it with the filename
+prompt_path = os.path.join(current_dir, "prompt.md")
+
+# 3. Open using the full path
+with open(prompt_path, 'r', encoding='utf-8') as f:
     system_message = f.read()
+
+
 
 # defines the gemini model we are using
 MODEL = "gemini-2.5-flash-native-audio-preview-12-2025"
