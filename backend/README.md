@@ -112,18 +112,14 @@ uv sync
 this automatically installs all the dependencies and packages
 
 4.**running the agent**
-navigate to the agent directory from the backend directory 
-```bash
-cd agent
-```
 *run the agent*
-the main agent logic is in the live_agent.py file
-using `uv`:
+from the backend directory run the agent using the command
 ```bash
-uv run python live_agent.py
+uv run python -m src.agent.live_agent
 ```
 this will instantiate the live agent, just say "Hi OpenTutor"
 
+you can ask the agent to search anything online or draw a hypothetical shape just for testing
 
 
 
