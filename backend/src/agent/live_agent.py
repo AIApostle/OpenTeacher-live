@@ -8,6 +8,7 @@ from .tasks import share_screen, send_live_video,send_realtime_audio,listen_to_a
 from .tools import WHITEBOARD_TOOL_MAP, tools
 from .tools import draw_on_board,write_on_board,delete_item,clear_board
 from fastapi import WebSocket
+import os
 
 load_dotenv()
 
@@ -15,9 +16,9 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
     raise RuntimeError("Missing API KEY")
+client = genai.Client(vertexai=True)
+#client = genai.Client(api_key=api_key,http_options={"api_version": "v1alpha"})
 
-client = genai.Client(api_key=api_key,http_options={"api_version": "v1alpha"})
-import os
 
 # this is for the system instruction
 #Gets the directory where live_agent.py is located

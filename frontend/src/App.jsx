@@ -15,6 +15,7 @@ export default function App() {
 
     const socket = new WebSocket(
       `ws://localhost:8000/ws/opentutor/${client_id}`
+      //`ws://localhost:8000/ws/opentutor/${client_id}`
     )
 
     socketRef.current = socket
@@ -134,6 +135,50 @@ export default function App() {
 
           break
         }
+
+
+        // draw a straight line
+        case "draw_line": {
+
+          editor.createShape({
+            id: data.id,
+            type: "line",
+            x: data.x,
+            y: data.y,
+            props: {
+              points: [
+                { x: 0, y: 0 },
+                { x: data.x2 - data.x, y: data.y2 - data.y }
+              ]
+            }
+          })
+
+          break
+        }
+
+
+// draw curve lines
+        case "draw_curve": {
+
+          editor.createShape({
+            id: data.id,
+            type: "draw",
+            x: data.x,
+            y: data.y,
+            props: {
+              segments: [
+                {
+                  type: "free",
+                  points: data.points
+                }
+              ]
+            }
+          })
+
+          break
+        }
+
+
 
         default:
           console.log("Unknown action:", msg.action)
