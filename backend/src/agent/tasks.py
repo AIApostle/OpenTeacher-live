@@ -52,8 +52,8 @@ async def send_realtime_audio(session):
 
         
 # this functions get the voice and the tool response from AI
-async def receive_response_from_ai(session):
-    """Receives responses including too call from GenAI and puts audio data into the speaker audio queue."""
+async def receive_response_from_ai(session, client_id):
+    """Receives responses including tool call from GenAI and puts audio data into the speaker audio queue."""
     while True:
         turn = session.receive()
         async for response in turn:
@@ -65,8 +65,8 @@ async def receive_response_from_ai(session):
             # A. HANDLE TOOLS (Whiteboard/Agentic Actions)
             if response.tool_call:
                 # We call your tools_handler here
-                await tools_handler(session, response.tool_call)
-
+                await tools_handler(client_id,session, response.tool_call)
+                print(f"🎨 handling task for {client_id}")
             
 
         # Empty the queue on interruption to stop playback

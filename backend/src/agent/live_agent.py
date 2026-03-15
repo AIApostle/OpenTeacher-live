@@ -7,6 +7,7 @@ import pyaudio
 from .tasks import share_screen, send_live_video,send_realtime_audio,listen_to_audio,receive_response_from_ai,play_ai_audio
 from .tools import WHITEBOARD_TOOL_MAP, tools
 from .tools import draw_on_board,write_on_board,delete_item,clear_board
+from fastapi import WebSocket
 
 load_dotenv()
 
@@ -51,7 +52,7 @@ audio_stream = None
 
 
 
-async def agent():
+async def agent(websocket, client_id: str):
     """Main function to run the agent"""
     try:
         async with client.aio.live.connect(
@@ -62,16 +63,16 @@ async def agent():
 
             async with asyncio.TaskGroup() as tg:
                 tg.create_task(listen_to_audio())
-                tg.create_task(send_live_video(live_session))
+                #tg.create_task(send_live_video(live_session))
                 tg.create_task(send_realtime_audio(live_session))
-                tg.create_task(receive_response_from_ai(live_session))
+                tg.create_task(receive_response_from_ai(live_session,client_id))
 
                 tg.create_task(play_ai_audio())
                 tg.create_task(share_screen(live_session))
                 
 
     except asyncio.CancelledError:
-        pass
+        print("disconnected from session")
 
     finally:
         if audio_stream:

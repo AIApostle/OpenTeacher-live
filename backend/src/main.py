@@ -16,9 +16,10 @@ app.add_middleware(
 
 app.include_router(routes)
 
-@app.get("./")
+@app.get("/")
 async def health_check():
     return {"status": "online", "message": "OpenTutor Engine is running"}
+    
 
 if __name__ == "__main__":
     # Runs the server on localhost:8000
